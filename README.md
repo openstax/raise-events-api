@@ -8,7 +8,7 @@ There is a docker environment that can be used for development:
 $ docker-compose up -d
 ```
 
-The development container launches `uvicorn` with `--reload` and volume mounts the code directory so file changes should get reflected without any additional steps. The API is accessible on port 9000 and docs available at http://localhost:9000/docs. The environment also has CORS configured to allow requests from `localhost:8000` (the port used for dev Moodle instances).
+The development container launches `uvicorn` with `--reload` and volume mounts the code directory so file changes should get reflected without any additional steps. The API is accessible on port 8888 and docs available at http://localhost:8888/docs. The environment also has CORS configured to allow requests from `localhost:8000` (the port used for dev Moodle instances).
 
 The code can be linted and tested locally as follows:
 
