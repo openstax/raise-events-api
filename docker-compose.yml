@@ -1,0 +1,11 @@
+services:
+  eventsapi:
+    build:
+      context: .
+    volumes:
+      - .:/code
+    ports:
+      - "9000:80"
+    command: ["uvicorn", "eventsapi.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+    environment:
+      - CORS_ALLOWED_ORIGINS=http://localhost:8000
