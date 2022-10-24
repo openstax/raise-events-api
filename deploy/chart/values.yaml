@@ -1,0 +1,7 @@
+deploymentName: dev
+deploymentDomain: events.dev.raiselearning.org
+replicas: 1
+allowedOrigins: dev.raiselearning.org
+apiImage:
+  name: <account>.dkr.ecr.<region>.amazonaws.com/raise-events-api
+  tag: sha

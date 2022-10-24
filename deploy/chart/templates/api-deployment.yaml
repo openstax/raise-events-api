@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+  labels:
+    app: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+          image: {{ .Values.apiImage.name }}:{{ .Values.apiImage.tag }}
+          imagePullPolicy: Always
+          env:
+            - name: CORS_ALLOWED_ORIGINS
+              value: {{ .Values.allowedOrigins }}
+          ports:
+            - containerPort: 80

@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  shell: bash
+  secrets-manager:
+    SLACK_WEBHOOKURL: "slack:k12stream"
+
+phases:
+  install:
+    commands:
+      - curl -L https://get.helm.sh/helm-v3.10.1-linux-amd64.tar.gz | tar -xvz
+      - mv linux-amd64/helm ./helm
+      - curl -L -o yq "https://github.com/mikefarah/yq/releases/download/v4.28.2/yq_linux_amd64"
+      - chmod +x ./helm ./yq
+      - export PATH=$PWD:$PATH
+  pre_build:
+    commands:
+      - aws eks update-kubeconfig --name $K8S_CLUSTER_NAME
+      - export API_IMAGE_NAME=$(cat $CODEBUILD_SRC_DIR_api_build_output/api-image-name.txt)
+      - export API_IMAGE_TAG=$(cat $CODEBUILD_SRC_DIR_api_build_output/api-image-tag.txt)
+      - export API_INSTANCE="events.staging.raiselearning.org"
+      - touch ./values.yaml
+      - yq e -i '.deploymentName="staging"' ./values.yaml
+      - yq e -i '.deploymentDomain=strenv(API_INSTANCE)' ./values.yaml
+      - yq e -i '.replicas=2' ./values.yaml
+      - yq e -i '.allowedOrigins="dev.raiselearning.org,research-dev.raiselearning.org,qa.raiselearning.org,staging.raiselearning.org"' ./values.yaml
+      - yq e -i '.apiImage.name=strenv(API_IMAGE_NAME)' ./values.yaml
+      - yq e -i '.apiImage.tag=strenv(API_IMAGE_TAG)' ./values.yaml
+  build:
+    commands:
+      - helm upgrade --install -f ./values.yaml $API_INSTANCE deploy/chart/
+      - export SLACK_MESSAGE="Deployment to $API_INSTANCE completed successfully for commit $COMMIT_ID"
+      - "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"'\"$SLACK_MESSAGE\"'\"}' $SLACK_WEBHOOKURL"
