@@ -7,7 +7,7 @@ This application is deployed using Kubernetes. The deployment is automated via [
 * `buildspec/` - [CodeBuild](https://docs.aws.amazon.com/codebuild) buildspec files used in pipeline stages
 * `chart/` - A Helm chart used to deploy to Kubernetes
 
-The pipeline is configured to automatically updating the staging environment when PRs are merged to `main`. An operator must manually approve the promotion to production.
+The pipeline is configured to automatically update the staging environment when PRs are merged to `main`. An operator must manually approve the promotion to production.
 
 ## References
 
