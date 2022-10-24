@@ -1,3 +1,4 @@
+import json
 import os
 from starlette.requests import Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -23,9 +24,9 @@ class JWTBearer(HTTPBearer):
         
         token = credentials.credentials
 
-        token_claims = await self.get_verified_claims(token)
+        token_claims = self.get_verified_claims(token)
 
-        request.state.userdata = token_claims.get("uuid")
+        request.state.userdata = token_claims.get("sub")
 
     def get_verified_claims(self, token):
         try:
@@ -38,7 +39,7 @@ class JWTBearer(HTTPBearer):
         
         kid = unverified_headers.get("kid")
 
-        secret_map = os.environ['SECRET']
+        secret_map = json.loads(os.environ['SECRET'])
         secret = None
         for item in secret_map:
             if item["kid"] == kid:
@@ -56,7 +57,7 @@ class JWTBearer(HTTPBearer):
         
     def verify_token(self, token, secret):
         try:
-            verified_claims = jwt.decode(token, secret)
+            verified_claims = jwt.decode(token, secret, algorithms=['HS256'])
         except JWTError as error:
             raise HTTPException(
                 status_code=403,
