@@ -11,8 +11,8 @@ def get_userdata(request: Request) -> str:
 
 
 class JWTBearer(HTTPBearer):
-    def __init__():
-        return
+    def __init__(self):
+        super().__init__(auto_error=True)
 
     async def __call__(
         self,
@@ -38,7 +38,7 @@ class JWTBearer(HTTPBearer):
         
         kid = unverified_headers.get("kid")
 
-        secret_map = os.environ['SECRETS_MAP']
+        secret_map = os.environ['SECRET']
         secret = None
         for item in secret_map:
             if item["kid"] == kid:
