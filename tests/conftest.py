@@ -14,8 +14,7 @@ client = TestClient(app)
 
 @pytest.fixture(scope="module")
 def client() -> Generator:
-    a = f'[{{"kid":"{TEST_KID}", "secret":"{TEST_SECRET}"}}]'
-    environ["SECRET"] = a
+    environ["SECRET"] = f'[{{"kid":"{TEST_KID}", "secret":"{TEST_SECRET}"}}]'
     from eventsapi.main import app
     with TestClient(app) as c:
         yield c
