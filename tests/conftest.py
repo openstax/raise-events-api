@@ -3,9 +3,9 @@ import time
 import json
 from typing import Dict
 from fastapi.testclient import TestClient
-from eventsapi.main import app
 from starlette.config import environ
 from jose import jwt, jwk
+
 
 @pytest.fixture(scope="module")
 def client_factory():
@@ -21,7 +21,7 @@ def admin_header_factory() -> Dict:
     def _header_generator(uuid, kid, secret, expired=False):
         if not expired:
             expiry = time.time() + 60
-        else: 
+        else:
             expiry = time.time() - 60
         payload = {
             "sub": uuid,
