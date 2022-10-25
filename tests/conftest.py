@@ -34,10 +34,14 @@ def hmac_headers():
 
 @pytest.fixture
 def admin_header_factory(hmac_key, hmac_headers) -> Dict:
-    def _header_generator(uuid):
+    def _header_generator(uuid, expired=False):
+        if not expired:
+            expiry = time.time() + 60
+        else: 
+            expiry = time.time() - 60
         payload = {
             "sub": uuid,
-            "exp": time.time() + 60
+            "exp": expiry
         }
         token = jwt.encode(payload, hmac_key, headers=hmac_headers)
         return {"Authorization": f"Bearer {token}"}

@@ -11,3 +11,10 @@ def test_post_events(
     response = client.post("/v1/events", headers=auth_header)
     assert response.status_code == 201
     assert "detail" in response.json()
+
+def test_expired_jwt(
+    client: TestClient, admin_header_factory: Callable[[str], Dict]
+):
+    auth_header = admin_header_factory(str(uuid.uuid4()), expired=True)
+    response = client.post("/v1/events", headers=auth_header)
+    assert response.status_code == 403
