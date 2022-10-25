@@ -1,40 +1,24 @@
 import pytest
 import time
+import json
 from typing import Dict
-from typing import Generator
 from fastapi.testclient import TestClient
 from eventsapi.main import app
 from starlette.config import environ
 from jose import jwt, jwk
 
-TEST_SECRET = "testsecret"
-TEST_KID = "testkid"
-
-client = TestClient(app)
-
 @pytest.fixture(scope="module")
-def client() -> Generator:
-    environ["SECRET"] = f'[{{"kid":"{TEST_KID}", "secret":"{TEST_SECRET}"}}]'
-    from eventsapi.main import app
-    with TestClient(app) as c:
-        yield c
-
-@pytest.fixture
-def hmac_key():
-    return jwk.construct(TEST_SECRET, "HS256").to_dict()
+def client_factory():
+    def _client_generator(auth_keys):
+        environ["AUTH_KEYS"] = json.dumps(auth_keys)
+        from eventsapi.main import app
+        return TestClient(app)
+    return _client_generator
 
 
 @pytest.fixture
-def hmac_headers():
-    return {
-        "kid": TEST_KID,
-        "alg": "HS256",
-        "typ": "JWT"
-    }
-
-@pytest.fixture
-def admin_header_factory(hmac_key, hmac_headers) -> Dict:
-    def _header_generator(uuid, expired=False):
+def admin_header_factory() -> Dict:
+    def _header_generator(uuid, kid, secret, expired=False):
         if not expired:
             expiry = time.time() + 60
         else: 
@@ -43,6 +27,20 @@ def admin_header_factory(hmac_key, hmac_headers) -> Dict:
             "sub": uuid,
             "exp": expiry
         }
-        token = jwt.encode(payload, hmac_key, headers=hmac_headers)
+        key = hmac_key(secret)
+        headers = hmac_headers(kid)
+        token = jwt.encode(payload, key, headers=headers)
         return {"Authorization": f"Bearer {token}"}
     return _header_generator
+
+
+def hmac_key(secret):
+    return jwk.construct(secret, "HS256").to_dict()
+
+
+def hmac_headers(kid):
+    return {
+        "kid": kid,
+        "alg": "HS256",
+        "typ": "JWT"
+    }

@@ -14,6 +14,6 @@ v1_router = APIRouter()
     response_model=models.DetailMessage)
 def create_events(
     user: str = Depends(auth.get_userdata)
-    ):
+):
     logger.info("Received POST to /events")
     return {"detail": "Success!"}

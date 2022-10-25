@@ -21,11 +21,9 @@ class JWTBearer(HTTPBearer):
     ) -> Optional[HTTPAuthorizationCredentials]:
         credentials: HTTPAuthorizationCredentials = \
             await super().__call__(request)
-        
+
         token = credentials.credentials
-
         token_claims = self.get_verified_claims(token)
-
         request.state.userdata = token_claims.get("sub")
 
     def get_verified_claims(self, token):
@@ -36,25 +34,23 @@ class JWTBearer(HTTPBearer):
                 status_code=403,
                 detail=str(error)
             )
-        
-        kid = unverified_headers.get("kid")
 
-        secret_map = json.loads(os.environ['SECRET'])
+        kid = unverified_headers.get("kid")
+        secret_map = json.loads(os.environ['AUTH_KEYS'])
+
         secret = None
         for item in secret_map:
             if item["kid"] == kid:
                 secret = item["secret"]
                 break
-        if secret == None:
+        if secret is None:
             raise HTTPException(
                 status_code=403,
                 detail="Invalid kid value in token"
             )
 
-        verified_claims = self.verify_token(token, secret)
-    
-        return verified_claims
-        
+        return self.verify_token(token, secret)
+
     def verify_token(self, token, secret):
         try:
             verified_claims = jwt.decode(token, secret, algorithms=['HS256'])
