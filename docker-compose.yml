@@ -9,3 +9,4 @@ services:
     command: ["uvicorn", "eventsapi.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
     environment:
       - CORS_ALLOWED_ORIGINS=http://localhost:8000
+      - AUTH_KEYS=[{"kid":"20221025","secret":"9b559131a8059bd6d5f0e96a1b15be1488611653b77c9c87ec59dd115498fe96"}]

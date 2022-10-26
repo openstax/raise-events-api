@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from eventsapi import routers
@@ -7,7 +8,8 @@ from eventsapi.auth import JWTBearer
 
 logging.basicConfig(level=logging.INFO)
 
-auth_bearer = JWTBearer()
+auth_keys = json.loads(os.environ['AUTH_KEYS'])
+auth_bearer = JWTBearer(auth_keys)
 
 app = FastAPI(
     title="RAISE Events API",

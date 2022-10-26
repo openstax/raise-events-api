@@ -1,5 +1,3 @@
-import json
-import os
 from starlette.requests import Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
@@ -7,12 +5,13 @@ from fastapi import HTTPException
 from jose import jwt, JWTError
 
 
-def get_userdata(request: Request) -> str:
-    return request.state.userdata
+def get_user_uuid(request: Request) -> str:
+    return request.state.user_uuid
 
 
 class JWTBearer(HTTPBearer):
-    def __init__(self):
+    def __init__(self, auth_keys):
+        self.auth_keys = auth_keys
         super().__init__(auto_error=True)
 
     async def __call__(
@@ -24,22 +23,14 @@ class JWTBearer(HTTPBearer):
 
         token = credentials.credentials
         token_claims = self.get_verified_claims(token)
-        request.state.userdata = token_claims.get("sub")
+        request.state.user_uuid = token_claims.get("sub")
 
     def get_verified_claims(self, token):
-        try:
-            unverified_headers = jwt.get_unverified_headers(token)
-        except JWTError as error:
-            raise HTTPException(
-                status_code=403,
-                detail=str(error)
-            )
-
+        unverified_headers = jwt.get_unverified_headers(token)
         kid = unverified_headers.get("kid")
-        secret_map = json.loads(os.environ['AUTH_KEYS'])
 
         secret = None
-        for item in secret_map:
+        for item in self.auth_keys:
             if item["kid"] == kid:
                 secret = item["secret"]
                 break
@@ -53,7 +44,11 @@ class JWTBearer(HTTPBearer):
 
     def verify_token(self, token, secret):
         try:
-            verified_claims = jwt.decode(token, secret, algorithms=['HS256'])
+            options = {
+                "verify_exp": True,
+                "require_exp": True
+            }
+            verified_claims = jwt.decode(token, secret, options=options)
         except JWTError as error:
             raise HTTPException(
                 status_code=403,

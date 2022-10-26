@@ -13,7 +13,7 @@ v1_router = APIRouter()
     status_code=201,
     response_model=models.DetailMessage)
 def create_events(
-    user: str = Depends(auth.get_userdata)
+    user: str = Depends(auth.get_user_uuid)
 ):
     logger.info("Received POST to /events")
     return {"detail": "Success!"}
