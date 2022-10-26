@@ -8,7 +8,7 @@ from eventsapi.auth import JWTBearer
 
 logging.basicConfig(level=logging.INFO)
 
-auth_keys = json.loads(os.environ['AUTH_KEYS'])
+auth_keys = json.loads(os.getenv("AUTH_KEYS", "{}"))
 auth_bearer = JWTBearer(auth_keys)
 
 app = FastAPI(
