@@ -65,3 +65,16 @@ def test_invalid_kid_value_in_token(
     response = client.post("/v1/events", headers=auth_header)
     assert response.status_code == 403
     assert response.json()['detail'] == 'Invalid kid value in token'
+
+
+def test_invalid_token(
+    client_factory: Callable[[Dict], TestClient]
+):
+    client = client_factory({})
+
+    auth_header = {
+        "Authorization": "Bearer badtoken"
+    }
+    response = client.post("/v1/events", headers=auth_header)
+    assert response.status_code == 403
+    assert response.json()['detail'] == 'Error decoding token headers.'

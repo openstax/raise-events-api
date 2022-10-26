@@ -11,8 +11,8 @@ def get_user_uuid(request: Request) -> str:
 
 class JWTBearer(HTTPBearer):
     def __init__(self, auth_keys):
-        self.auth_keys = auth_keys
         super().__init__(auto_error=True)
+        self.auth_keys = auth_keys
 
     async def __call__(
         self,
@@ -26,7 +26,13 @@ class JWTBearer(HTTPBearer):
         request.state.user_uuid = token_claims.get("sub")
 
     def get_verified_claims(self, token):
-        unverified_headers = jwt.get_unverified_headers(token)
+        try:
+            unverified_headers = jwt.get_unverified_headers(token)
+        except JWTError as error:
+            raise HTTPException(
+                status_code=403,
+                detail=str(error)
+            )
         kid = unverified_headers.get("kid")
 
         secret = None
