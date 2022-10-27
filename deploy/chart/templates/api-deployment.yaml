@@ -23,5 +23,10 @@ spec:
           env:
             - name: CORS_ALLOWED_ORIGINS
               value: {{ .Values.allowedOrigins }}
+            - name: AUTH_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+                  key: authKeys
           ports:
             - containerPort: 80
