@@ -4,6 +4,7 @@ env:
   shell: bash
   secrets-manager:
     SLACK_WEBHOOKURL: "slack:k12stream"
+    AUTH_KEYS: "raise-eventsapi-auth-prod:20221026"
 
 phases:
   install:
@@ -24,6 +25,7 @@ phases:
       - yq e -i '.deploymentDomain=strenv(API_INSTANCE)' ./values.yaml
       - yq e -i '.replicas=2' ./values.yaml
       - yq e -i '.allowedOrigins="raiselearning.org"' ./values.yaml
+      - yq e -i '.authKeys=strenv(AUTH_KEYS)' ./values.yaml
       - yq e -i '.apiImage.name=strenv(API_IMAGE_NAME)' ./values.yaml
       - yq e -i '.apiImage.tag=strenv(API_IMAGE_TAG)' ./values.yaml
   build:
