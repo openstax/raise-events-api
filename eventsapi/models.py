@@ -23,7 +23,7 @@ class ContentLoadedV1(BaseEvent):
 class ContentLoadFailedV1(BaseEvent):
     eventname: Literal['content_load_failed_v1']
     content_id: UUID
-    error: Optional[str] = ''
+    error: Optional[str]
 
 
 Event = Annotated[
