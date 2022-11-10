@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Union, Optional
 from pydantic import Field, BaseModel
 from uuid import UUID
 
@@ -14,22 +14,22 @@ class BaseEvent(BaseModel):
     timestamp: int
 
 
-class ContentLoadSuccessV1Event(BaseEvent):
-    eventname: Literal['content_load_success_v1']
+class ContentLoadedV1(BaseEvent):
+    eventname: Literal['content_loaded_v1']
     content_id: UUID
     variant: str
 
 
-class ContentLoadFailureV1Event(BaseEvent):
-    eventname: Literal['content_load_failure_v1']
+class ContentLoadFailedV1(BaseEvent):
+    eventname: Literal['content_load_failed_v1']
     content_id: UUID
-    details: str
+    error: Optional[str] = ''
 
 
 Event = Annotated[
     Union[
-        ContentLoadSuccessV1Event,
-        ContentLoadFailureV1Event
+        ContentLoadedV1,
+        ContentLoadFailedV1
     ],
     Field(discriminator='eventname')
 ]
