@@ -34,7 +34,7 @@ def test_post_two_different_kids(
                  {"kid": "kid2", "secret": "secret2"}]
     client = client_factory(auth_keys)
     body = [{
-         "course_id": 0,
+        "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "source_uri": "string",
         "timestamp": 0,
@@ -108,7 +108,7 @@ def test_content_load_success_event(
 
     auth_header = admin_header_factory(str(uuid.uuid4()), "kid1", "secret1")
     body = [{
-         "course_id": 0,
+        "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "source_uri": "string",
         "timestamp": 0,
@@ -130,7 +130,7 @@ def test_content_load_failure_event(
 
     auth_header = admin_header_factory(str(uuid.uuid4()), "kid1", "secret1")
     body = [{
-         "course_id": 0,
+        "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "source_uri": "string",
         "timestamp": 0,
@@ -152,16 +152,15 @@ def test_multiple_events(
 
     auth_header = admin_header_factory(str(uuid.uuid4()), "kid1", "secret1")
     body = [{
-         "course_id": 0,
+        "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "source_uri": "string",
         "timestamp": 0,
         "eventname": "content_load_success_v1",
         "content_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
         "variant": "string"
-    },
-    {
-         "course_id": 0,
+    }, {
+        "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66af23",
         "source_uri": "string",
         "timestamp": 0,
