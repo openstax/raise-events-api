@@ -4,7 +4,7 @@ env:
   shell: bash
   secrets-manager:
     SLACK_WEBHOOKURL: "slack:k12stream"
-    AUTH_KEYS: "raise-eventsapi-auth-prod:20221026"
+    AUTH_KEYS: "raise-eventsapi-auth-prod:20221116_20221026"
 
 phases:
   install:
