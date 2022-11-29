@@ -5,13 +5,14 @@ from typing import Dict
 from fastapi.testclient import TestClient
 from starlette.config import environ
 from jose import jwt, jwk
-
+from eventsapi import utils
 
 @pytest.fixture(scope="module")
 def client_factory():
     def _client_generator(auth_keys):
         environ["AUTH_KEYS"] = json.dumps(auth_keys)
         from eventsapi.main import app
+        app.dependency_overrides[utils.get_producer] = utils.get_mock_producer
         return TestClient(app)
     return _client_generator
 

@@ -8,7 +8,7 @@ from eventsapi.models import CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
 from aiokafka import AIOKafkaProducer
 from fastavro import writer
 from urllib.parse import urlparse
-from eventsapi.utils import get_schema
+from eventsapi import utils
 
 KAFKA_SERVER = "kafka:29092"
 
@@ -22,16 +22,16 @@ v1_router = APIRouter()
     response_model=DetailMessage)
 async def create_events(
     events: List[Event],
-    user_uuid: str = Depends(auth.get_user_uuid)
+    user_uuid: str = Depends(auth.get_user_uuid),
+    producer: AIOKafkaProducer = Depends(utils.get_producer)
 ):
     logger.info("Received POST to /events")
-    producer = AIOKafkaProducer(bootstrap_servers=KAFKA_SERVER, acks='all')
 
     await producer.start()
 
     for event in events:
         k_event = generate_kafka_model(event, user_uuid)
-        schema  = get_schema(event.eventname)
+        schema  = utils.get_schema(event.eventname)
 
         buf = io.BytesIO()
         writer(buf, schema, [k_event.dict()])
@@ -49,7 +49,7 @@ def generate_kafka_model(event, user_uuid):
     fields = {
         "user_uuid": user_uuid,
         "course_id": event.course_id,
-        "impression_id": event.impression_id,
+        "impression_id": str(event.impression_id),
         "source_scheme": url_parsed.scheme,
         "source_host": url_parsed.hostname,
         "source_path": url_parsed.path,
