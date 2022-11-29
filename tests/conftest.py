@@ -2,7 +2,7 @@ import pytest
 import time
 import json
 from typing import Dict
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from starlette.config import environ
 from jose import jwt, jwk
 from eventsapi import utils
@@ -13,7 +13,7 @@ def client_factory():
         environ["AUTH_KEYS"] = json.dumps(auth_keys)
         from eventsapi.main import app
         app.dependency_overrides[utils.get_producer] = utils.get_mock_producer
-        return TestClient(app)
+        return AsyncClient(app=app, base_url="http://test")
     return _client_generator
 
 

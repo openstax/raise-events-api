@@ -5,12 +5,9 @@ from fastapi import APIRouter, Depends
 from eventsapi import auth
 from eventsapi.models import Event, DetailMessage, KafkaContentLoadFailedV1, KafkaContentLoadedV1
 from eventsapi.models import CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
-from aiokafka import AIOKafkaProducer
 from fastavro import writer
 from urllib.parse import urlparse
 from eventsapi import utils
-
-KAFKA_SERVER = "kafka:29092"
 
 logger = logging.getLogger(__name__)
 
@@ -23,22 +20,22 @@ v1_router = APIRouter()
 async def create_events(
     events: List[Event],
     user_uuid: str = Depends(auth.get_user_uuid),
-    producer: AIOKafkaProducer = Depends(utils.get_producer)
+    producer = Depends(utils.get_producer)
 ):
     logger.info("Received POST to /events")
 
-    await producer.start()
+    # await producer.start()
 
     for event in events:
         k_event = generate_kafka_model(event, user_uuid)
         schema  = utils.get_schema(event.eventname)
 
-        buf = io.BytesIO()
-        writer(buf, schema, [k_event.dict()])
-        message_data = buf.getvalue()
-        await producer.send(event.eventname, message_data)
+    #     buf = io.BytesIO()
+    #     writer(buf, schema, [k_event.dict()])
+    #     message_data = buf.getvalue()
+    #     await producer.send(event.eventname, message_data)
 
-    await producer.stop()
+    # await producer.stop()
 
     return {"detail": "Success!"}
 
