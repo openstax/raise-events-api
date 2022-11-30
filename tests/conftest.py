@@ -8,6 +8,7 @@ from starlette.config import environ
 from jose import jwt, jwk
 from eventsapi import utils
 
+
 @pytest.fixture(scope="module")
 def client_factory():
     def _client_generator(auth_keys):
@@ -46,6 +47,7 @@ def hmac_headers(kid):
         "alg": "HS256",
         "typ": "JWT"
     }
+
 
 def get_mock_producer():
     producer_mock = Mock()

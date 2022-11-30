@@ -1,19 +1,20 @@
-
+import json
+import boto3
 from functools import cache
-import io
 import py_avro_schema as pas
 from aiokafka import AIOKafkaProducer
-from eventsapi.models import KafkaContentLoadedV1, KafkaContentLoadFailedV1, CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
 from aws_schema_registry.avro import AvroSchema
 from aws_schema_registry import SchemaRegistryClient, DataAndSchema
 from kafka.serializer import Serializer
 from kafka.record.legacy_records import LegacyRecordBatchBuilder
 from kafka.errors import MessageSizeTooLargeError
 from aws_schema_registry.adapter.kafka import KafkaSerializer
-from fastavro import writer
-from eventsapi.settings import GLUE_REGISTRY_NAME, AWS_REGION, KAFKA_BOOTSTRAP_BROKERS
-import json
-import boto3
+from eventsapi.settings import \
+    GLUE_REGISTRY_NAME, AWS_REGION, \
+    KAFKA_BOOTSTRAP_BROKERS
+from eventsapi.models import \
+    KafkaContentLoadedV1, KafkaContentLoadFailedV1, \
+    CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
 
 
 @cache
@@ -73,6 +74,7 @@ class CustomKafkaProducer(AIOKafkaProducer):
                 " max_request_size configuration" % message_size)
 
         return serialized_key, serialized_value
+
 
 async def get_producer():
     if (not GLUE_REGISTRY_NAME):

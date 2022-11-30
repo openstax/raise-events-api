@@ -1,16 +1,18 @@
-import io
 import logging
 from typing import List
 from fastapi import APIRouter, Depends
-from eventsapi import auth
-from eventsapi.models import Event, DetailMessage, KafkaContentLoadFailedV1, KafkaContentLoadedV1
-from eventsapi.models import CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
 from urllib.parse import urlparse
 from eventsapi import utils
+from eventsapi import auth
+from eventsapi.models import \
+    Event, DetailMessage, \
+    KafkaContentLoadFailedV1, KafkaContentLoadedV1, \
+    CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
+
 
 logger = logging.getLogger(__name__)
-
 v1_router = APIRouter()
+
 
 @v1_router.post(
     "/events",
@@ -19,7 +21,7 @@ v1_router = APIRouter()
 async def create_events(
     events: List[Event],
     user_uuid: str = Depends(auth.get_user_uuid),
-    producer = Depends(utils.get_producer)
+    producer=Depends(utils.get_producer)
 ):
     logger.info("Received POST to /events")
 
