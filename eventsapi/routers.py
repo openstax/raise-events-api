@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends
 from eventsapi import auth
 from eventsapi.models import Event, DetailMessage, KafkaContentLoadFailedV1, KafkaContentLoadedV1
 from eventsapi.models import CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
-from fastavro import writer
 from urllib.parse import urlparse
 from eventsapi import utils
 
@@ -24,18 +23,14 @@ async def create_events(
 ):
     logger.info("Received POST to /events")
 
-    # await producer.start()
+    await producer.start()
 
     for event in events:
-        k_event = generate_kafka_model(event, user_uuid)
-        schema  = utils.get_schema(event.eventname)
+        k_event = generate_kafka_model(event, user_uuid).dict()
+        schema = utils.get_schema(event.eventname)
+        await producer.send(event.eventname, value=(k_event, schema))
 
-    #     buf = io.BytesIO()
-    #     writer(buf, schema, [k_event.dict()])
-    #     message_data = buf.getvalue()
-    #     await producer.send(event.eventname, message_data)
-
-    # await producer.stop()
+    await producer.stop()
 
     return {"detail": "Success!"}
 

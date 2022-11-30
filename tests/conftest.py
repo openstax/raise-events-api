@@ -1,8 +1,9 @@
+from unittest.mock import AsyncMock, Mock
 import pytest
 import time
 import json
 from typing import Dict
-from httpx import AsyncClient
+from fastapi.testclient import TestClient
 from starlette.config import environ
 from jose import jwt, jwk
 from eventsapi import utils
@@ -12,8 +13,8 @@ def client_factory():
     def _client_generator(auth_keys):
         environ["AUTH_KEYS"] = json.dumps(auth_keys)
         from eventsapi.main import app
-        app.dependency_overrides[utils.get_producer] = utils.get_mock_producer
-        return AsyncClient(app=app, base_url="http://test")
+        app.dependency_overrides[utils.get_producer] = get_mock_producer
+        return TestClient(app)
     return _client_generator
 
 
@@ -45,3 +46,10 @@ def hmac_headers(kid):
         "alg": "HS256",
         "typ": "JWT"
     }
+
+def get_mock_producer():
+    producer_mock = Mock()
+    producer_mock.start = AsyncMock()
+    producer_mock.send = AsyncMock()
+    producer_mock.stop = AsyncMock()
+    return producer_mock
