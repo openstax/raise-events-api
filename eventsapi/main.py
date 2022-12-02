@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from eventsapi import routers
 from eventsapi.auth import JWTBearer
 from eventsapi.settings import AUTH_KEYS, CORS_ALLOWED_ORIGINS
+from eventsapi.kafka_producer import aiokafka_producer
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,3 +27,13 @@ if CORS_ALLOWED_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+
+@app.on_event("startup")
+async def startup_event():
+    await aiokafka_producer.start()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await aiokafka_producer.stop()

@@ -53,7 +53,7 @@ class CustomKafkaProducer(AIOKafkaProducer):
         return serialized_key, serialized_value
 
 
-async def get_kafka_producer():
+def get_kafka_producer():
     if (GLUE_REGISTRY_NAME):
         serializer = get_kafka_glue_serializer()
         producer = CustomKafkaProducer(
@@ -79,3 +79,6 @@ def get_kafka_glue_serializer():
         registry_name=GLUE_REGISTRY_NAME
     )
     return KafkaSerializer(client, compatibility_mode='FULL_ALL')
+
+
+aiokafka_producer = get_kafka_producer()
