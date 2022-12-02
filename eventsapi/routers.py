@@ -28,7 +28,7 @@ async def create_events(
     try:
         for event in events:
             kafka_event = generate_kafka_model(event, user_uuid).dict()
-            schema = get_avro_schema(event.eventname)
+            schema = get_avro_schema(type(event))
             await producer.send(event.eventname, value=(kafka_event, schema))
     finally:
         await producer.stop()
