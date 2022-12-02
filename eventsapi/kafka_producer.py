@@ -1,37 +1,14 @@
-import json
 import boto3
-from functools import cache
-import py_avro_schema as pas
 from aiokafka import AIOKafkaProducer
-from aws_schema_registry.avro import AvroSchema
-from aws_schema_registry import SchemaRegistryClient, DataAndSchema
+from aws_schema_registry import SchemaRegistryClient
 from kafka.serializer import Serializer
 from kafka.record.legacy_records import LegacyRecordBatchBuilder
 from kafka.errors import MessageSizeTooLargeError
+from aws_schema_registry import DataAndSchema
 from aws_schema_registry.adapter.kafka import KafkaSerializer
 from eventsapi.settings import \
     GLUE_REGISTRY_NAME, AWS_REGION, \
     KAFKA_BOOTSTRAP_BROKERS
-from eventsapi.models import \
-    KafkaContentLoadedV1, KafkaContentLoadFailedV1, \
-    CONTENT_LOADED_V1, CONTENT_LOAD_FAILED_V1
-
-
-@cache
-def get_schema(eventname):
-
-    if eventname == CONTENT_LOADED_V1:
-        schema_json = pas.generate(
-            KafkaContentLoadedV1,
-            namespace="org.openstax.k12.raise.events"
-        )
-        return AvroSchema(json.loads(schema_json))
-    elif eventname == CONTENT_LOAD_FAILED_V1:
-        schema_json = pas.generate(
-            KafkaContentLoadFailedV1,
-            namespace="org.openstax.k12.raise.events"
-        )
-        return AvroSchema(json.loads(schema_json))
 
 
 class KafkaAvroSerializer(Serializer):
@@ -76,16 +53,9 @@ class CustomKafkaProducer(AIOKafkaProducer):
         return serialized_key, serialized_value
 
 
-async def get_producer():
-    if (not GLUE_REGISTRY_NAME):
-        producer = CustomKafkaProducer(
-            bootstrap_servers=KAFKA_BOOTSTRAP_BROKERS,
-            value_serializer=KafkaAvroSerializer(),
-            acks='all'
-        )
-        return producer
-    else:
-        serializer = get_glue_serializer()
+async def get_kafka_producer():
+    if (GLUE_REGISTRY_NAME):
+        serializer = get_kafka_glue_serializer()
         producer = CustomKafkaProducer(
             bootstrap_servers=KAFKA_BOOTSTRAP_BROKERS,
             security_protocol="SSL",
@@ -93,9 +63,16 @@ async def get_producer():
             acks='all'
         )
         return producer
+    else:
+        producer = CustomKafkaProducer(
+            bootstrap_servers=KAFKA_BOOTSTRAP_BROKERS,
+            value_serializer=KafkaAvroSerializer(),
+            acks='all'
+        )
+        return producer
 
 
-async def get_glue_serializer():
+def get_kafka_glue_serializer():
     glue_client = boto3.client('glue', region_name=AWS_REGION)
     client = SchemaRegistryClient(
         glue_client,

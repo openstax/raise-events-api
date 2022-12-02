@@ -1,20 +1,20 @@
 from unittest.mock import AsyncMock, Mock
 import pytest
 import time
-import json
 from typing import Dict
 from fastapi.testclient import TestClient
-from starlette.config import environ
 from jose import jwt, jwk
-from eventsapi import utils
+from eventsapi import kafka_producer
+from eventsapi import settings
 
 
-@pytest.fixture(scope="module")
-def client_factory():
+@pytest.fixture
+def client_factory(monkeypatch):
     def _client_generator(auth_keys):
-        environ["AUTH_KEYS"] = json.dumps(auth_keys)
+        monkeypatch.setattr(settings, "AUTH_KEYS", auth_keys)
         from eventsapi.main import app
-        app.dependency_overrides[utils.get_producer] = get_mock_producer
+        app.dependency_overrides[kafka_producer.get_kafka_producer] = \
+            get_mock_producer
         return TestClient(app)
     return _client_generator
 

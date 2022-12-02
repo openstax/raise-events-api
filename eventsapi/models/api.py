@@ -1,7 +1,6 @@
 from typing import Annotated, Literal, Union, Optional
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, AnyHttpUrl
 from uuid import UUID
-
 
 CONTENT_LOADED_V1 = 'content_loaded_v1'
 CONTENT_LOAD_FAILED_V1 = 'content_load_failed_v1'
@@ -14,7 +13,7 @@ class DetailMessage(BaseModel):
 class BaseEvent(BaseModel):
     course_id: int
     impression_id: UUID
-    source_uri: str
+    source_uri: AnyHttpUrl
     timestamp: int
 
 
@@ -30,31 +29,10 @@ class ContentLoadFailedV1(BaseEvent):
     error: Optional[str]
 
 
-Event = Annotated[
+APIEvent = Annotated[
     Union[
         ContentLoadedV1,
         ContentLoadFailedV1
     ],
     Field(discriminator='eventname')
 ]
-
-
-class BaseKafkaEventV1(BaseModel):
-    user_uuid: UUID
-    course_id: int
-    impression_id: UUID
-    source_scheme: str
-    source_host: str
-    source_path: str
-    source_query: str
-    timestamp: int
-
-
-class KafkaContentLoadedV1(BaseKafkaEventV1):
-    content_id: UUID
-    variant: str
-
-
-class KafkaContentLoadFailedV1(BaseKafkaEventV1):
-    content_id: UUID
-    error: Optional[str]
