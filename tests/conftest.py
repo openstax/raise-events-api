@@ -10,15 +10,13 @@ from eventsapi import settings
 @pytest.fixture(autouse=True)
 def no_aiokafka_producer(monkeypatch):
     """Mock out AIOKafkaProducer for all tests."""
-    monkeypatch.setattr("aiokafka.AIOKafkaProducer", Mock())
+    monkeypatch.setattr("aiokafka.AIOKafkaProducer", get_mock_producer())
 
 
 @pytest.fixture
 def client_factory(monkeypatch):
     def _client_generator(auth_keys):
         monkeypatch.setattr(settings, "AUTH_KEYS", auth_keys)
-        from eventsapi import routers
-        monkeypatch.setattr(routers, "aiokafka_producer", get_mock_producer())
         from eventsapi.main import app
 
         return TestClient(app)
