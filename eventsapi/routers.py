@@ -27,7 +27,8 @@ async def create_events(
         kafka_event = generate_kafka_model(event, user_uuid).dict()
         schema = get_avro_schema(type(event))
         await aiokafka_producer.send(
-            event.eventname, value=(kafka_event, schema)
+            event.eventname,
+            value=(kafka_event, schema, event.eventname)
         )
 
     return {"detail": "Success!"}

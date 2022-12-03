@@ -10,7 +10,7 @@ from eventsapi import settings
 @pytest.fixture(autouse=True)
 def no_aiokafka_producer(monkeypatch):
     """Mock out AIOKafkaProducer for all tests."""
-    monkeypatch.setattr("aiokafka.AIOKafkaProducer", get_mock_producer())
+    monkeypatch.setattr("aiokafka.AIOKafkaProducer", get_mock_producer)
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def hmac_headers(kid):
     }
 
 
-def get_mock_producer():
+def get_mock_producer(**kwargs):
     producer_mock = Mock()
     producer_mock.start = AsyncMock()
     producer_mock.send = AsyncMock()
