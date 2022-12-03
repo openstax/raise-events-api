@@ -4,17 +4,23 @@ import time
 from typing import Dict
 from fastapi.testclient import TestClient
 from jose import jwt, jwk
-from eventsapi import kafka_producer
 from eventsapi import settings
+
+
+@pytest.fixture(autouse=True)
+def no_aiokafka_producer(monkeypatch):
+    """Mock out AIOKafkaProducer for all tests."""
+    monkeypatch.setattr("aiokafka.AIOKafkaProducer", Mock())
 
 
 @pytest.fixture
 def client_factory(monkeypatch):
     def _client_generator(auth_keys):
         monkeypatch.setattr(settings, "AUTH_KEYS", auth_keys)
+        from eventsapi import routers
+        monkeypatch.setattr(routers, "aiokafka_producer", get_mock_producer())
         from eventsapi.main import app
-        app.dependency_overrides[kafka_producer.get_kafka_producer] = \
-            get_mock_producer
+
         return TestClient(app)
     return _client_generator
 
