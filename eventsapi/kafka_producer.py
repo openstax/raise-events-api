@@ -1,5 +1,4 @@
 import boto3
-from functools import partial
 from aiokafka import AIOKafkaProducer
 from aws_schema_registry import SchemaRegistryClient
 from kafka.serializer import Serializer
@@ -18,10 +17,10 @@ class KafkaAvroSerializer(Serializer):
 
 
 def build_callable_serializer(serializer):
-    def _serialize_data(data_schema_topic, serializer):
+    def _serialize_data(data_schema_topic):
         data, schema, topic = data_schema_topic
         return serializer.serialize(topic, (data, schema))
-    return partial(_serialize_data, serializer=serializer)
+    return _serialize_data
 
 
 def get_kafka_producer():
