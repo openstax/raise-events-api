@@ -2,9 +2,6 @@ from typing import Annotated, Literal, Union, Optional
 from pydantic import Field, BaseModel, AnyHttpUrl
 from uuid import UUID
 
-CONTENT_LOADED_V1 = 'content_loaded_v1'
-CONTENT_LOAD_FAILED_V1 = 'content_load_failed_v1'
-
 
 class DetailMessage(BaseModel):
     detail: str
