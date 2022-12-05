@@ -27,7 +27,6 @@ services:
     image: docker.redpanda.com/vectorized/console:master-cb51d72
     depends_on:
       - kafka
-      - eventsapi
     environment:
       KAFKA_BROKERS: "kafka:29092"
     ports:
@@ -35,6 +34,8 @@ services:
   eventsapi:
     build:
       context: .
+    depends_on:
+      - kafka
     volumes:
       - .:/code
     ports:
