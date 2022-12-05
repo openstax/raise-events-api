@@ -1,17 +1,24 @@
+from unittest.mock import AsyncMock, Mock
 import pytest
 import time
-import json
 from typing import Dict
 from fastapi.testclient import TestClient
-from starlette.config import environ
 from jose import jwt, jwk
+from eventsapi import settings
 
 
-@pytest.fixture(scope="module")
-def client_factory():
+@pytest.fixture(autouse=True)
+def no_aiokafka_producer(monkeypatch):
+    """Mock out AIOKafkaProducer for all tests."""
+    monkeypatch.setattr("aiokafka.AIOKafkaProducer", get_mock_producer)
+
+
+@pytest.fixture
+def client_factory(monkeypatch):
     def _client_generator(auth_keys):
-        environ["AUTH_KEYS"] = json.dumps(auth_keys)
+        monkeypatch.setattr(settings, "AUTH_KEYS", auth_keys)
         from eventsapi.main import app
+
         return TestClient(app)
     return _client_generator
 
@@ -44,3 +51,11 @@ def hmac_headers(kid):
         "alg": "HS256",
         "typ": "JWT"
     }
+
+
+def get_mock_producer(**kwargs):
+    producer_mock = Mock()
+    producer_mock.start = AsyncMock()
+    producer_mock.send = AsyncMock()
+    producer_mock.stop = AsyncMock()
+    return producer_mock

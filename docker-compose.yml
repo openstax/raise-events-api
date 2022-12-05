@@ -1,7 +1,41 @@
 services:
+  zookeeper:
+    image: zookeeper:3.8
+    volumes:
+      - zkdata:/data
+      - zkdatalog:/datalog
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.8.1 # This tag is <scala version>-<kafka version>
+    volumes:
+      - kafkadata:/kafka/kafka-logs-kafka
+    ports:
+      - 9092:9092
+    hostname: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+
+  redpanda:
+    image: docker.redpanda.com/vectorized/console:master-cb51d72
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKERS: "kafka:29092"
+    ports:
+      - 8080:8080
   eventsapi:
     build:
       context: .
+    depends_on:
+      - kafka
     volumes:
       - .:/code
     ports:
@@ -9,4 +43,9 @@ services:
     command: ["uvicorn", "eventsapi.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
     environment:
       - CORS_ALLOWED_ORIGINS=http://localhost:8000
+      - KAFKA_BOOTSTRAP_BROKERS=kafka:29092
       - AUTH_KEYS
+volumes:
+  zkdata:
+  zkdatalog:
+  kafkadata:

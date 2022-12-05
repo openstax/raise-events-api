@@ -1,0 +1,8 @@
+import json
+import os
+
+GLUE_REGISTRY_NAME = os.getenv("GLUE_REGISTRY_NAME")
+AWS_REGION = os.getenv("AWS_REGION")
+KAFKA_BOOTSTRAP_BROKERS = os.getenv("KAFKA_BOOTSTRAP_BROKERS")
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS")
+AUTH_KEYS = json.loads(os.getenv("AUTH_KEYS", "[]"))

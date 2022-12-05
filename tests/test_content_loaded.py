@@ -14,7 +14,7 @@ def test_content_load_success_event(
     body = [{
         "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "source_uri": "string",
+        "source_uri": "http://localhost:8000",
         "timestamp": 0,
         "eventname": "content_loaded_v1",
         "content_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
@@ -37,7 +37,7 @@ def test_multiple_events(
     body = [{
         "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "source_uri": "string",
+        "source_uri": "https://localhost:8000",
         "timestamp": 0,
         "eventname": "content_loaded_v1",
         "content_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
@@ -45,7 +45,7 @@ def test_multiple_events(
     }, {
         "course_id": 0,
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "source_uri": "string",
+        "source_uri": "https://localhost:8000",
         "timestamp": 0,
         "eventname": "content_loaded_v1",
         "content_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
@@ -69,7 +69,7 @@ def test_invalid_event_body(
         "impression_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "content_id": "string",
         "eventname": "content_loaded_v1",
-        "source_uri": "string",
+        "source_uri": "http://localhost:8000",
         "timestamp": 0
     }]
     response = client.post("/v1/events", json=body, headers=auth_header)

@@ -1,15 +1,14 @@
-import os
 import logging
-import json
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from eventsapi import routers
 from eventsapi.auth import JWTBearer
+from eventsapi.settings import AUTH_KEYS, CORS_ALLOWED_ORIGINS
+from eventsapi.kafka_producer import aiokafka_producer
 
 logging.basicConfig(level=logging.INFO)
 
-auth_keys = json.loads(os.getenv("AUTH_KEYS", "[]"))
-auth_bearer = JWTBearer(auth_keys)
+auth_bearer = JWTBearer(AUTH_KEYS)
 
 app = FastAPI(
     title="RAISE Events API",
@@ -17,10 +16,6 @@ app = FastAPI(
 )
 
 app.include_router(routers.v1_router, prefix="/v1")
-
-CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS"
-)
 
 if CORS_ALLOWED_ORIGINS:
     # Support comma separated list of origins
@@ -32,3 +27,13 @@ if CORS_ALLOWED_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+
+@app.on_event("startup")
+async def startup_event():
+    await aiokafka_producer.start()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await aiokafka_producer.stop()
