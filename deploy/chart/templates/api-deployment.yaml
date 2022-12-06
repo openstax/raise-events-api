@@ -16,6 +16,7 @@ spec:
       labels:
         app: {{ .Chart.Name }}-{{ .Values.deploymentName }}
     spec:
+      serviceAccountName: raise-events-api
       containers:
         - name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
           image: {{ .Values.apiImage.name }}:{{ .Values.apiImage.tag }}
