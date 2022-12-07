@@ -21,7 +21,7 @@ async def create_events(
     events: List[APIEvent],
     user_uuid: str = Depends(auth.get_user_uuid)
 ):
-    logger.info("Received POST to /events")
+    logger.info(f"Received POST to /events with {len(events)} item(s)")
 
     for event in events:
         kafka_event = generate_kafka_model(event, user_uuid).dict()
