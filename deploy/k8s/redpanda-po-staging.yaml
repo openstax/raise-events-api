@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redpanda
+  namespace: default
+spec:
+  containers:
+  - name: redpanda
+    image: docker.redpanda.com/vectorized/console
+    env:
+      - name: KAFKA_BROKERS
+        value: "broker1,broker2,broker3"
+      - name: KAFKA_TLS_ENABLED
+        value: "true"
+      - name: KAFKA_SASL_ENABLED
+        value: "true"
+      - name: KAFKA_SASL_MECHANISM
+        value: SCRAM-SHA-512
+      - name: KAFKA_SASL_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: raise-eventsapi-staging
+            key: kafkaSaslUsername
+      - name: KAFKA_SASL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: raise-eventsapi-staging
+            key: kafkaSaslPassword
