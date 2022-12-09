@@ -24,7 +24,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
 
   redpanda:
-    image: docker.redpanda.com/vectorized/console:master-cb51d72
+    image: docker.redpanda.com/vectorized/console
     depends_on:
       - kafka
     environment:

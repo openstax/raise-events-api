@@ -16,6 +16,7 @@ spec:
       labels:
         app: {{ .Chart.Name }}-{{ .Values.deploymentName }}
     spec:
+      serviceAccountName: raise-events-api
       containers:
         - name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
           image: {{ .Values.apiImage.name }}:{{ .Values.apiImage.tag }}
@@ -23,10 +24,29 @@ spec:
           env:
             - name: CORS_ALLOWED_ORIGINS
               value: {{ .Values.allowedOrigins }}
+            - name: GLUE_REGISTRY_NAME
+              value: {{ .Values.glueRegistryName }}
+            - name: GLUE_AWS_REGION
+              value: {{ .Values.glueAwsRegion }}
+            - name: KAFKA_BOOTSTRAP_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+                  key: kafkaBootstrapBrokers
             - name: AUTH_KEYS
               valueFrom:
                 secretKeyRef:
                   name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
                   key: authKeys
+            - name: KAFKA_SASL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+                  key: kafkaSaslUsername
+            - name: KAFKA_SASL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+                  key: kafkaSaslPassword
           ports:
             - containerPort: 80
