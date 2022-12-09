@@ -14,19 +14,35 @@ The pipeline is configured to automatically update the staging environment when 
 
 Currently we do not leave a longstanding instance of Redpanda Console running in our clusters. If a developer wants to deploy an instance to inspect a Kafka cluster, they can utilize the configuration files in the `k8s/` directory (staging or production):
 
-1. Modify the YAML file with appropriate values for `KAFKA_BROKERS`
-2. Deploy the pod and setup a port forward (note that the example below uses port 8081 to avoid conflicts with the use of port 8080 by the `docker-compose.yml` in this repo):
+1. Deploy the pod and setup a port forward after configuring your `kubectl` to point to the appropriate cluster (note that the example below uses port 8081 to avoid conflicts with the use of port 8080 by the `docker-compose.yml` in this repo):
+
+**Staging**
 
 ```bash
-$ kubectl apply -f deploy/k8s/redpanda-po-{prod/staging}.yaml
+$ kubectl apply -f deploy/k8s/redpanda-po-staging.yaml
 $ kubectl port-forward redpanda 8081:8080
+```
+
+**Production**
+
+```bash
+$ kubectl apply -f deploy/k8s/redpanda-po-prod.yaml
+$ kubectl -n raise port-forward redpanda 8081:8080
 ```
 
 3. Navigate to `http://localhost:8081` to view the console
 4. Cleanup after you're done:
 
+**Staging**
+
 ```bash
-$ kubectl delete -f deploy/k8s/redpanda-po-{prod/staging}.yaml
+$ kubectl delete -f deploy/k8s/redpanda-po-staging.yaml
+```
+
+**Production**
+
+```bash
+$ kubectl delete -f deploy/k8s/redpanda-po-prod.yaml
 ```
 
 ## References

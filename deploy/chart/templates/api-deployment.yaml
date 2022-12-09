@@ -29,7 +29,10 @@ spec:
             - name: GLUE_AWS_REGION
               value: {{ .Values.glueAwsRegion }}
             - name: KAFKA_BOOTSTRAP_BROKERS
-              value: {{ .Values.kafkaBootstrapBrokers }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}
+                  key: kafkaBootstrapBrokers
             - name: AUTH_KEYS
               valueFrom:
                 secretKeyRef:

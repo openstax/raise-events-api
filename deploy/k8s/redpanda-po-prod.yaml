@@ -9,7 +9,10 @@ spec:
     image: docker.redpanda.com/vectorized/console
     env:
       - name: KAFKA_BROKERS
-        value: "broker1,broker2,broker3"
+        valueFrom:
+          configMapKeyRef:
+            name: raise-eventsapi-prod
+            key: kafkaBootstrapBrokers
       - name: KAFKA_TLS_ENABLED
         value: "true"
       - name: KAFKA_SASL_ENABLED
