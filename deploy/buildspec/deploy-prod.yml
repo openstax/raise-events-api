@@ -26,7 +26,7 @@ phases:
       - yq e -i '.deploymentName="prod"' ./values.yaml
       - yq e -i '.deploymentDomain=strenv(API_INSTANCE)' ./values.yaml
       - yq e -i '.replicas=2' ./values.yaml
-      - yq e -i '.allowedOrigins="raiselearning.org"' ./values.yaml
+      - yq e -i '.allowedOrigins="https://raiselearning.org"' ./values.yaml
       - yq e -i '.authKeys=strenv(AUTH_KEYS)' ./values.yaml
       - yq e -i '.glueRegistryName=strenv(GLUE_REGISTRY_NAME)' ./values.yaml
       - yq e -i '.glueAwsRegion=strenv(GLUE_AWS_REGION)' ./values.yaml
