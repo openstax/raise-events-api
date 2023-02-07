@@ -39,6 +39,24 @@ class KafkaIbPsetProblemAttemptedV1(BaseKafkaEvent):
     pset_problem_content_id: UUID
 
 
+API_TO_KAFKA_MODEL_MAP = {
+    ContentLoadedV1: KafkaContentLoadedV1,
+    ContentLoadFailedV1: KafkaContentLoadFailedV1,
+    IbPsetProblemAttemptedV1: KafkaIbPsetProblemAttemptedV1
+}
+
+
+API_TO_KAFKA_SHARED_FIELDS_MAP = {
+    ContentLoadedV1: ["content_id", "variant"],
+    ContentLoadFailedV1: ["content_id", "error"],
+    IbPsetProblemAttemptedV1: [
+        "content_id", "variant", "problem_type", "response",
+        "correct", "attempt", "final_attempt", "pset_content_id",
+        "pset_problem_content_id"
+    ]
+}
+
+
 def generate_kafka_model(event, user_uuid):
     event_type = type(event)
     url_parsed = urlparse(event.source_uri)
@@ -53,19 +71,7 @@ def generate_kafka_model(event, user_uuid):
         "timestamp": event.timestamp
     }
 
-    if event_type == ContentLoadedV1:
-        for value in ["content_id", "variant"]:
-            fields[value] = getattr(event, value)
-        return KafkaContentLoadedV1(**fields)
-    elif event_type == ContentLoadFailedV1:
-        for value in ["content_id", "error"]:
-            fields[value] = getattr(event, value)
-        return KafkaContentLoadFailedV1(**fields)
-    elif event_type == IbPsetProblemAttemptedV1:
-        for value in [
-            "content_id", "variant", "problem_type", "response",
-            "correct", "attempt", "final_attempt", "pset_content_id",
-            "pset_problem_content_id"
-        ]:
-            fields[value] = getattr(event, value)
-        return KafkaIbPsetProblemAttemptedV1(**fields)
+    for value in API_TO_KAFKA_SHARED_FIELDS_MAP[event_type]:
+        fields[value] = getattr(event, value)
+
+    return API_TO_KAFKA_MODEL_MAP[event_type](**fields)
