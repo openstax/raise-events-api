@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, Union, List
 from urllib.parse import urlparse
 from pydantic import BaseModel
 from uuid import UUID
 from eventsapi.models.api import \
-    ContentLoadedV1, ContentLoadFailedV1
+    ContentLoadedV1, ContentLoadFailedV1, IbPsetProblemAttemptedV1
 
 
 class BaseKafkaEvent(BaseModel):
@@ -27,6 +27,36 @@ class KafkaContentLoadFailedV1(BaseKafkaEvent):
     error: Optional[str]
 
 
+class KafkaIbPsetProblemAttemptedV1(BaseKafkaEvent):
+    content_id: UUID
+    variant: str
+    problem_type: str
+    response: Union[str, List[str]]
+    correct: bool
+    attempt: int
+    final_attempt: bool
+    pset_content_id: UUID
+    pset_problem_content_id: UUID
+
+
+API_TO_KAFKA_MODEL_MAP = {
+    ContentLoadedV1: KafkaContentLoadedV1,
+    ContentLoadFailedV1: KafkaContentLoadFailedV1,
+    IbPsetProblemAttemptedV1: KafkaIbPsetProblemAttemptedV1
+}
+
+
+API_TO_KAFKA_SHARED_FIELDS_MAP = {
+    ContentLoadedV1: ["content_id", "variant"],
+    ContentLoadFailedV1: ["content_id", "error"],
+    IbPsetProblemAttemptedV1: [
+        "content_id", "variant", "problem_type", "response",
+        "correct", "attempt", "final_attempt", "pset_content_id",
+        "pset_problem_content_id"
+    ]
+}
+
+
 def generate_kafka_model(event, user_uuid):
     event_type = type(event)
     url_parsed = urlparse(event.source_uri)
@@ -41,11 +71,7 @@ def generate_kafka_model(event, user_uuid):
         "timestamp": event.timestamp
     }
 
-    if event_type == ContentLoadedV1:
-        fields["content_id"] = event.content_id
-        fields["variant"] = event.variant
-        return KafkaContentLoadedV1(**fields)
-    elif event_type == ContentLoadFailedV1:
-        fields["content_id"] = event.content_id
-        fields["error"] = event.error
-        return KafkaContentLoadFailedV1(**fields)
+    for value in API_TO_KAFKA_SHARED_FIELDS_MAP[event_type]:
+        fields[value] = getattr(event, value)
+
+    return API_TO_KAFKA_MODEL_MAP[event_type](**fields)
