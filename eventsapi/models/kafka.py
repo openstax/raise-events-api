@@ -3,7 +3,8 @@ from urllib.parse import urlparse
 from pydantic import BaseModel
 from uuid import UUID
 from eventsapi.models.api import \
-    ContentLoadedV1, ContentLoadFailedV1, IbPsetProblemAttemptedV1, IbInputSubmittedV1
+    ContentLoadedV1, ContentLoadFailedV1, \
+    IbPsetProblemAttemptedV1, IbInputSubmittedV1
 
 
 class BaseKafkaEvent(BaseModel):
