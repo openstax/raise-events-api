@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel
 from uuid import UUID
 from eventsapi.models.api import \
-    ContentLoadedV1, ContentLoadFailedV1, IbPsetProblemAttemptedV1
+    ContentLoadedV1, ContentLoadFailedV1, IbPsetProblemAttemptedV1, IbInputSubmittedV1
 
 
 class BaseKafkaEvent(BaseModel):
@@ -39,10 +39,18 @@ class KafkaIbPsetProblemAttemptedV1(BaseKafkaEvent):
     pset_problem_content_id: UUID
 
 
+class KafkaIbInputSubmittedV1(BaseKafkaEvent):
+    content_id: UUID
+    variant: str
+    response: str
+    input_content_id: UUID
+
+
 API_TO_KAFKA_MODEL_MAP = {
     ContentLoadedV1: KafkaContentLoadedV1,
     ContentLoadFailedV1: KafkaContentLoadFailedV1,
-    IbPsetProblemAttemptedV1: KafkaIbPsetProblemAttemptedV1
+    IbPsetProblemAttemptedV1: KafkaIbPsetProblemAttemptedV1,
+    IbInputSubmittedV1: KafkaIbInputSubmittedV1
 }
 
 
@@ -53,6 +61,9 @@ API_TO_KAFKA_SHARED_FIELDS_MAP = {
         "content_id", "variant", "problem_type", "response",
         "correct", "attempt", "final_attempt", "pset_content_id",
         "pset_problem_content_id"
+    ],
+    IbInputSubmittedV1: [
+        "content_id", "variant", "response", "input_content_id"
     ]
 }
 
