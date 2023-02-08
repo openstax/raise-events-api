@@ -39,11 +39,20 @@ class IbPsetProblemAttemptedV1(BaseEvent):
     pset_problem_content_id: UUID
 
 
+class IbInputSubmittedV1(BaseEvent):
+    eventname: Literal['ib_input_submitted_v1']
+    content_id: UUID
+    variant: str
+    response: str
+    input_content_id: UUID
+
+
 APIEvent = Annotated[
     Union[
         ContentLoadedV1,
         ContentLoadFailedV1,
-        IbPsetProblemAttemptedV1
+        IbPsetProblemAttemptedV1,
+        IbInputSubmittedV1
     ],
     Field(discriminator='eventname')
 ]
