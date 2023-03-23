@@ -22,11 +22,17 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
   redpanda:
     image: docker.redpanda.com/vectorized/console
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     environment:
       KAFKA_BROKERS: "kafka:29092"
     ports:
@@ -35,7 +41,8 @@ services:
     build:
       context: .
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     volumes:
       - .:/code
     ports:
