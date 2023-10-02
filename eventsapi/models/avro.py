@@ -14,7 +14,8 @@ def get_avro_schema(event_type):
 
     schema_json = pas.generate(
         kafka_event_cls,
-        namespace=AVRO_NAMESPACE
+        namespace=AVRO_NAMESPACE,
+        options=pas.Option.NO_DOC
     )
 
     return AvroSchema(json.loads(schema_json))
