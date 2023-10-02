@@ -25,7 +25,7 @@ class KafkaContentLoadedV1(BaseKafkaEvent):
 
 class KafkaContentLoadFailedV1(BaseKafkaEvent):
     content_id: UUID
-    error: Optional[str]
+    error: Optional[str] = None
 
 
 class KafkaIbPsetProblemAttemptedV1(BaseKafkaEvent):
