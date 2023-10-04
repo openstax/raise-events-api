@@ -25,7 +25,7 @@ class KafkaContentLoadedV1(BaseKafkaEvent):
 
 class KafkaContentLoadFailedV1(BaseKafkaEvent):
     content_id: UUID
-    error: Optional[str]
+    error: Optional[str] = None
 
 
 class KafkaIbPsetProblemAttemptedV1(BaseKafkaEvent):
@@ -71,7 +71,7 @@ API_TO_KAFKA_SHARED_FIELDS_MAP = {
 
 def generate_kafka_model(event, user_uuid):
     event_type = type(event)
-    url_parsed = urlparse(event.source_uri)
+    url_parsed = urlparse(str(event.source_uri))
     fields = {
         "user_uuid": user_uuid,
         "course_id": event.course_id,

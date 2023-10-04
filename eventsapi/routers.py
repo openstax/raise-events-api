@@ -24,7 +24,7 @@ async def create_events(
     logger.info(f"Received POST to /events with {len(events)} item(s)")
 
     for event in events:
-        kafka_event = generate_kafka_model(event, user_uuid).dict()
+        kafka_event = generate_kafka_model(event, user_uuid).model_dump()
         schema = get_avro_schema(type(event))
         await aiokafka_producer.send(
             event.eventname,
