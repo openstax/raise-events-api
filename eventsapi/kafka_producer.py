@@ -2,15 +2,14 @@ import boto3
 from aiokafka import AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
 from aws_schema_registry import SchemaRegistryClient
-from kafka.serializer import Serializer
 from aws_schema_registry import DataAndSchema
-from aws_schema_registry.adapter.kafka import KafkaSerializer
+from aws_schema_registry.serde import KafkaSerializer
 from eventsapi.settings import \
     GLUE_REGISTRY_NAME, GLUE_AWS_REGION, KAFKA_BOOTSTRAP_BROKERS, \
     KAFKA_SASL_USERNAME, KAFKA_SASL_PASSWORD
 
 
-class KafkaAvroSerializer(Serializer):
+class KafkaAvroSerializer:
     def serialize(self, topic: str, data_and_schema: DataAndSchema):
         data, schema = data_and_schema
         value = schema.write(data)
