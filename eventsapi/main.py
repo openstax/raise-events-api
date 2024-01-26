@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import logging
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,9 +11,17 @@ logging.basicConfig(level=logging.INFO)
 
 auth_bearer = JWTBearer(AUTH_KEYS)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await aiokafka_producer.start()
+    yield
+    await aiokafka_producer.stop()
+
 app = FastAPI(
     title="RAISE Events API",
-    dependencies=[Depends(auth_bearer)]
+    dependencies=[Depends(auth_bearer)],
+    lifespan=lifespan
 )
 
 app.include_router(routers.v1_router, prefix="/v1")
@@ -27,13 +36,3 @@ if CORS_ALLOWED_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-
-@app.on_event("startup")
-async def startup_event():
-    await aiokafka_producer.start()
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await aiokafka_producer.stop()
