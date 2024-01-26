@@ -13,7 +13,7 @@ auth_bearer = JWTBearer(AUTH_KEYS)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pragma: no cover
     await aiokafka_producer.start()
     yield
     await aiokafka_producer.stop()
